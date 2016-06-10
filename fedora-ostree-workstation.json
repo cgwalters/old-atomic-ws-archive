@@ -1,13 +1,13 @@
 {
-    "ref": "fedora/rawhide/x86_64/workstation",
+    "ref": "fedora/23/x86_64/workstation",
 
-    "repos": ["fedora-rawhide"],
+    "repos": ["fedora-23"],
 
     "selinux": true,
 
     "documentation": true,
 
-    "automatic_version_prefix": "25",
+    "automatic_version_prefix": "23",
 
     "initramfs-args": ["--no-hostonly"],
 

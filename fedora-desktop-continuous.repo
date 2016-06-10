@@ -1,0 +1,5 @@
+[fedora-workstation-continuous]
+#baseurl=https://ci.centos.org/artifacts/sig-atomic/rdgo/fedora-workstation/build
+baseurl=file:///srv/walters/build-workstation/build/
+enabled=1
+gpgcheck=0

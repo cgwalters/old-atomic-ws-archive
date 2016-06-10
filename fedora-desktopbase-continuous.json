@@ -1,0 +1,7 @@
+{
+    "include": "fedora-desktopbase.json",
+    
+    "ref": "fedora/23/x86_64/desktop/continuous",
+
+    "repos": ["fedora-workstation-continuous"]
+}

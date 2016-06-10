@@ -1,0 +1,53 @@
+#!/bin/bash
+set -xeuo pipefail
+
+origdir=$1
+buildscriptsdir=../workstation-ostree-config
+tempdir=$(mktemp -t -d "stamp.XXXXXX")
+touch ${tempdir}/.testtmp
+function cleanup () {
+    if test -n "${TEST_SKIP_CLEANUP:-}"; then
+	echo "Skipping cleanup of ${tempdir}"
+    else if test -f ${tempdir}/.testtmp; then
+	rm "${tempdir}" -rf
+    fi
+    fi
+}
+trap cleanup EXIT
+
+ln -sf ${buildscriptsdir}/overlay.yml .
+if ! test -d src; then
+    rpmdistro-gitoverlay init
+fi    
+
+# Create this now so it always exists for Jenkins
+mkdir -p ${origdir}/build-logs
+
+# Delete files accidentally created in builddir
+rm -f fetch.stap build.stamp treecompose.stamp
+
+# Git fetch all the things
+rpmdistro-gitoverlay resolve --fetch-all --touch-if-changed ${tempdir}/fetch.stamp
+
+# Do an RPM build if something changed
+if test -f ${tempdir}/fetch.stamp; then
+    rpmdistro-gitoverlay build --touch-if-changed ${tempdir}/build.stamp --logdir=${origdir}/build-logs
+fi
+
+if ! test -d ostree/repo/objects; then
+    mkdir -p ostree/repo
+    ostree --repo=ostree/repo init --mode=archive-z2
+fi
+
+treefile=fedora-desktopbase-continuous.json
+sed -i -e 's,^baseurl=.*,baseurl=file://'$(pwd)/build',' ${buildscriptsdir}/fedora-desktop-continuous.repo
+echo 'excludes=libhif libhif-devel' >> ${buildscriptsdir}/fedora-23.repo
+sudo rpm-ostree compose tree --touch-if-changed=${tempdir}/treecompose.stamp --repo=ostree/repo ${buildscriptsdir}/${treefile}
+if test -f ${tempdir}/treecompose.stamp; then
+    sudo chown -R -h $USER:$USER ostree/repo
+    ostree --repo=ostree/repo summary -u
+    rpm-ostree db --repo=ostree/repo diff fedora/23/x86_64/desktop/continuous{^,}
+    ostree --repo=ostree/repo static-delta generate fedora/23/x86_64/desktop/continuous
+    ostree --repo=ostree/repo prune --keep-younger-than='30 days ago' --refs-only
+    ostree --repo=ostree/repo summary -u
+fi

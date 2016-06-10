@@ -1,15 +1,17 @@
 [fedora-23]
 name=Fedora 23 - $basearch
 failovermethod=priority
-baseurl=http://download.fedoraproject.org/pub/fedora/linux/releases/23/Everything/$basearch/os/
+baseurl=http://dl.fedoraproject.org/pub/fedora/linux/releases/23/Everything/$basearch/os/
 #metalink=https://mirrors.fedoraproject.org/metalink?repo=fedora-23&arch=$basearch
 enabled=1
 gpgcheck=0
+exclude=libhif libhif-devel
 
 [fedora-23-updates]
 name=Fedora 23 - $basearch - Updates
 failovermethod=priority
-baseurl=http://download.fedoraproject.org/pub/fedora/linux/updates/23/$basearch/
+baseurl=http://dl.fedoraproject.org/pub/fedora/linux/updates/23/$basearch/
 #metalink=https://mirrors.fedoraproject.org/metalink?repo=updates-released-f23&arch=$basearch
 enabled=1
 gpgcheck=0
+exclude=libhif libhif-devel

@@ -1,0 +1,22 @@
+---
+- include: epel7.yml
+
+- copy:
+    dest: /etc/yum.repos.d/walters-buildtools.repo
+    content: |
+      [walters-buildtools]
+      name=Copr repo for buildtools owned by walters
+      baseurl=https://copr-be.cloud.fedoraproject.org/results/walters/buildtools/epel-7-$basearch/
+      skip_if_unavailable=True
+      gpgcheck=1
+      gpgkey=https://copr-be.cloud.fedoraproject.org/results/walters/buildtools/pubkey.gpg
+      enabled=1
+      enabled_metadata=1
+
+- yum: name={{ item }} state=present
+  with_items:
+    - rsync
+    - mock
+    - rpmdistro-gitoverlay
+
+- user: name=builder groups=mock

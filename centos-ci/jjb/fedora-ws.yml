@@ -1,0 +1,46 @@
+- job:
+    name: atomic-fedora-ws
+    node: atomic-sig-ci-slave01 
+    description: |
+      See https://fedoraproject.org/wiki/Changes/WorkstationOstree
+    scm:
+      - fedora-ws-scms
+    triggers:
+      - github
+      - timed: "H/30 * * * *"
+
+    defaults: fedora-ws-defaults
+
+    builders:
+      - macro-cciskel-duffy-prepared-allocate:
+          jobclass: builder
+          duffytimeoutsecs: 3600
+          playbook: workstation-ostree-config/centos-ci/setup/setup-system.yml
+      - shell: |
+          #!/bin/bash
+          set -xeuo pipefail
+
+          (echo -n "export RSYNC_PASSWORD=" && cat ~/duffy.key | cut -c '-13') > rsync-password.sh
+
+          rsync -q -Hrlptv --stats -e ssh workstation-ostree-config rsync-password.sh builder@${DUFFY_HOST}:
+          build_success=true
+          if ! ssh -tt -i ${WORKSPACE}/builder.key builder@${DUFFY_HOST} ./workstation-ostree-config/centos-ci/run-build-and-rsync; then
+            build_success=false
+          fi
+          rsync -q -Hrlptv --stats -e ssh builder@${DUFFY_HOST}:build-logs $WORKSPACE/build-logs || true
+          # Exit with code from the build
+          if test "${build_success}" = "false"; then
+            echo 'Build failed, see logs above'; exit 1
+          fi
+            
+    publishers:
+      - archive:
+          artifacts: 'build-logs/**'
+          allow-empty: 'true'
+      - macro-cciskel-duffy-deallocate
+
+# create the jobs using the job templates
+- project:
+    name: atomic-rdgo
+    jobs:
+      - atomic-fedora-ws

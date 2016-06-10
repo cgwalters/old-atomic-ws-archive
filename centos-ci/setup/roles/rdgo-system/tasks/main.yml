@@ -1,0 +1,59 @@
+---
+- include: epel7.yml
+
+- copy:
+    dest: /etc/yum.repos.d/walters-buildtools.repo
+    content: |
+      [walters-buildtools]
+      name=Copr repo for buildtools owned by walters
+      baseurl=https://copr-be.cloud.fedoraproject.org/results/walters/buildtools/epel-7-$basearch/
+      gpgcheck=1
+      gpgkey=https://copr-be.cloud.fedoraproject.org/results/walters/buildtools/pubkey.gpg
+      enabled=1
+      enabled_metadata=1
+
+- copy:
+    dest: /etc/yum.repos.d/centos7-atomic.repo
+    content: |
+      [centos7-atomic]
+      name=CentOS7 Atomic
+      baseurl=http://buildlogs.centos.org/centos/7/atomic/x86_64/Packages/
+      gpgcheck=1
+      gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+      enabled=1
+      enabled_metadata=1
+
+# Ensure we see fresh data
+- command: yum clean expire-cache      
+
+# Use this when COPR is down
+- command: yum -y upgrade https://s3.amazonaws.com/cdn.verbum.org/rpmdistro-gitoverlay-2016.2.13.g57a5c88-1.el7.noarch.rpm
+
+- yum: name={{ item }} state=latest
+  with_items:
+    - rsync
+    - mock
+    - rpm-ostree
+    - fedpkg
+    - rpmdistro-gitoverlay
+
+# nspawn is better, also https://lists.fedoraproject.org/pipermail/buildsys/2015-July/004833.html
+# Also https://bugzilla.redhat.com/show_bug.cgi?id=1328212
+- lineinfile: dest=/etc/mock/site-defaults.cfg "line={{ item }}"
+  with_items:
+    - "config_opts['plugin_conf']['tmpfs_enable'] = True"
+    - "config_opts['use_nspawn'] = True"
+
+- user: name={{ item }} groups=mock,wheel
+  with_items:
+    - builder
+    - prbuilder
+
+- lineinfile: "dest=/etc/sudoers state=present regexp='^%wheel' line='%wheel ALL=(ALL) NOPASSWD: ALL'"
+
+- authorized_key:
+    user: "{{ item }}"
+    key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+  with_items:
+    - builder
+    - prbuilder

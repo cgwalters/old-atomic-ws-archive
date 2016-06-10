@@ -1,0 +1,58 @@
+aliases: 
+  - name: github
+    url: https://github.com/
+    cacertpath: certs/DigiCertSHA2ExtendedValidationServerCA.pem
+
+  - name: fedorapkgs
+    url: https://pkgs.fedoraproject.org/git/rpms/
+    # Note this is actually not in ca-certificates.
+    cacertpath: certs/FedoraProjectCA.pem
+
+  - name: gnome
+    url: https://git.gnome.org/browse/
+    cacertpath: certs/StartComClass2PrimaryIntermediateServerCA.pem
+
+distgit:
+  prefix: fedorapkgs
+  branch: f23
+  
+root:
+  mock: fedora-23-$arch
+
+cache:
+  buildserial: 0
+
+components:
+  - src: github:cgwalters/yum-stub
+    spec: internal
+
+  - src: github:projectatomic/bubblewrap
+    spec: internal
+    
+  # In contrast I want to land a lot of features in librepo
+  - src: github:Tojaj/librepo
+
+  - src: github:flatpak/flatpak
+    distgit:
+      branch: master
+
+  - src: github:ostreedev/ostree
+    distgit:
+      branch: master
+      patches: drop
+
+  - src: distgit
+    distgit:
+      name: libsolv
+      branch: master
+
+  # rpm-ostree always needs bleeding edge libhif
+  - src: github:rpm-software-management/libhif
+    spec: internal
+
+  - src: github:projectatomic/rpm-ostree
+    rpmwithout:
+      - bundled_libhif
+    distgit:
+      branch: master
+      patches: drop

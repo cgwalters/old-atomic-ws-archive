@@ -5,7 +5,6 @@ baseurl=http://dl.fedoraproject.org/pub/fedora/linux/releases/23/Everything/$bas
 #metalink=https://mirrors.fedoraproject.org/metalink?repo=fedora-23&arch=$basearch
 enabled=1
 gpgcheck=0
-exclude=libhif libhif-devel
 
 [fedora-23-updates]
 name=Fedora 23 - $basearch - Updates
@@ -14,4 +13,3 @@ baseurl=http://dl.fedoraproject.org/pub/fedora/linux/updates/23/$basearch/
 #metalink=https://mirrors.fedoraproject.org/metalink?repo=updates-released-f23&arch=$basearch
 enabled=1
 gpgcheck=0
-exclude=libhif libhif-devel

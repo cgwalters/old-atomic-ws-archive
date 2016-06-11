@@ -3,6 +3,19 @@
     node: atomic-sig-ci-slave01 
     description: |
       See https://fedoraproject.org/wiki/Changes/WorkstationOstree
+
+      From inside an existing system:
+      <pre>
+      yum -y install ostree
+      ostree admin init-fs /
+      ostree remote add --set=gpg-verify=false fedora-ws-centosci https://ci.centos.org/artifacts/sig-atomic/rdgo/fedora-workstation/ostree/repo/
+      ostree --repo=/ostree/repo pull fedora-ws-centosci:fedora/23/x86_64/desktop/continuous
+      ostree admin os-init fedora
+      ostree admin deploy --os=fedora --karg-proc-cmdline --karg=enforcing=0 fedora-ws-centosci:fedora/23/x86_64/desktop/continuous
+      cp /etc/fstab /ostree/deploy/fedora/deploy/$checksum.0/etc
+        (You may need to modify the fstab)
+      grub2-mkconfig -o /boot/grub2/grub.cfg
+      </pre>
     scm:
       - fedora-ws-scms
     triggers:

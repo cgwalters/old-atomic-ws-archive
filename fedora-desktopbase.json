@@ -42,6 +42,7 @@
 		"bluez-cups",
 		"bridge-utils",
 		"btrfs-progs",
+		"bubblewrap",
 		"bzip2",
 		"c-ares",
 		"caribou",

@@ -44,7 +44,7 @@ if ! test -d ostree/repo/objects; then
 fi
 
 treefile=fedora-desktopbase-continuous.json
-sed -i -e 's,^baseurl=.*,baseurl=file://'$(pwd)/build',' ${buildscriptsdir}/fedora-desktop-continuous.repo
+sed -i -e 's,^baseurl=.*,baseurl=file:///srv/compose/build',' ${buildscriptsdir}/fedora-desktop-continuous.repo
 sudo docker run --privileged -v $(cd ${buildscriptsdir} && pwd):/srv/src -v ${tempdir}:/srv/tmp -v $(pwd):/srv/compose rpm-ostree compose tree --touch-if-changed=/srv/tmp/treecompose.stamp --repo=/srv/compose/ostree/repo /srv/src/${treefile}
 if test -f ${tempdir}/treecompose.stamp; then
     sudo chown -R -h $USER:$USER ostree/repo

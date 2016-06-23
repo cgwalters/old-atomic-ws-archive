@@ -41,13 +41,13 @@ fi
 
 treefile=fedora-desktopbase-continuous.json
 sed -i -e 's,^baseurl=.*,baseurl=file://'$(pwd)/build',' ${buildscriptsdir}/fedora-desktop-continuous.repo
-echo 'excludes=libhif libhif-devel' >> ${buildscriptsdir}/fedora-23.repo
+echo 'excludes=libhif libhif-devel' >> ${buildscriptsdir}/fedora-24.repo
 sudo rpm-ostree compose tree --touch-if-changed=${tempdir}/treecompose.stamp --repo=ostree/repo ${buildscriptsdir}/${treefile}
 if test -f ${tempdir}/treecompose.stamp; then
     sudo chown -R -h $USER:$USER ostree/repo
     ostree --repo=ostree/repo summary -u
-    rpm-ostree db --repo=ostree/repo diff fedora/23/x86_64/desktop/continuous{^,}
-    ostree --repo=ostree/repo static-delta generate fedora/23/x86_64/desktop/continuous
+    rpm-ostree db --repo=ostree/repo diff fedora/24/x86_64/desktop/continuous{^,}
+    ostree --repo=ostree/repo static-delta generate fedora/24/x86_64/desktop/continuous
     ostree --repo=ostree/repo prune --keep-younger-than='30 days ago' --refs-only
     ostree --repo=ostree/repo summary -u
 fi

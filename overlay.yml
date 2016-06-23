@@ -14,10 +14,10 @@ aliases:
 
 distgit:
   prefix: fedorapkgs
-  branch: f23
+  branch: f24
   
 root:
-  mock: fedora-23-$arch
+  mock: fedora-24-$arch
 
 cache:
   buildserial: 0

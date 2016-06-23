@@ -1,13 +1,13 @@
 {
-    "ref": "fedora/23/x86_64/desktop/koji",
+    "ref": "fedora/24/x86_64/desktop/koji",
 
-    "repos": ["fedora-23", "fedora-23-updates"],
+    "repos": ["fedora-24", "fedora-24-updates"],
 
     "selinux": true,
 
     "documentation": true,
 
-    "automatic_version_prefix": "23",
+    "automatic_version_prefix": "24",
 
     "initramfs-args": ["--no-hostonly"],
 

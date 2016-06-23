@@ -1,0 +1,15 @@
+[fedora-24]
+name=Fedora 24 - $basearch
+failovermethod=priority
+baseurl=https://dl.fedoraproject.org/pub/fedora/linux/releases/24/Everything/$basearch/os/
+#metalink=https://mirrors.fedoraproject.org/metalink?repo=fedora-24&arch=$basearch
+enabled=1
+gpgcheck=0
+
+[fedora-24-updates]
+name=Fedora 24 - $basearch - Updates
+failovermethod=priority
+baseurl=https://dl.fedoraproject.org/pub/fedora/linux/updates/24/$basearch/
+#metalink=https://mirrors.fedoraproject.org/metalink?repo=updates-released-f24&arch=$basearch
+enabled=1
+gpgcheck=0

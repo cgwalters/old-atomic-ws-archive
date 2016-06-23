@@ -36,6 +36,8 @@ if test -f ${tempdir}/fetch.stamp; then
     rpmdistro-gitoverlay build --touch-if-changed ${tempdir}/build.stamp --logdir=${origdir}/build-logs
 fi
 
+(cd ${buildscriptsdir}/centos-ci/containers && sudo make)
+
 if ! test -d ostree/repo/objects; then
     mkdir -p ostree/repo
     ostree --repo=ostree/repo init --mode=archive-z2
@@ -43,8 +45,7 @@ fi
 
 treefile=fedora-desktopbase-continuous.json
 sed -i -e 's,^baseurl=.*,baseurl=file://'$(pwd)/build',' ${buildscriptsdir}/fedora-desktop-continuous.repo
-echo 'excludes=libhif libhif-devel' >> ${buildscriptsdir}/fedora-24.repo
-sudo rpm-ostree compose tree --touch-if-changed=${tempdir}/treecompose.stamp --repo=ostree/repo ${buildscriptsdir}/${treefile}
+sudo docker run --privileged -v $(cd ${buildscriptsdir} && pwd):/srv/src -v ${tempdir}:/srv/tmp -v $(pwd):/srv/compose rpm-ostree compose tree --touch-if-changed=/srv/tmp/treecompose.stamp --repo=/srv/compose/ostree/repo /srv/src/${treefile}
 if test -f ${tempdir}/treecompose.stamp; then
     sudo chown -R -h $USER:$USER ostree/repo
     ostree --repo=ostree/repo summary -u

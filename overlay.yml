@@ -33,8 +33,6 @@ components:
   - src: github:Tojaj/librepo
 
   - src: github:flatpak/flatpak
-    # translation issues
-    freeze: d1d881edf3050c6e6c69a675a82bbb573cdfd8ae
     distgit:
       branch: master
 

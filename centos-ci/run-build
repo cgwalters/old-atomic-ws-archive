@@ -2,7 +2,7 @@
 set -xeuo pipefail
 
 origdir=$1
-buildscriptsdir=../workstation-ostree-config
+buildscriptsdir=$(cd ../workstation-ostree-config && pwd)
 tempdir=$(mktemp -t -d "stamp.XXXXXX")
 touch ${tempdir}/.testtmp
 function cleanup () {
@@ -17,6 +17,8 @@ trap cleanup EXIT
 
 (cd ${buildscriptsdir} && git clean -dfx)
 
+(cd rdgo;
+ls -al
 ln -sf ${buildscriptsdir}/overlay.yml .
 if ! test -d src; then
     rpmdistro-gitoverlay init
@@ -35,6 +37,7 @@ rpmdistro-gitoverlay resolve --fetch-all --touch-if-changed ${tempdir}/fetch.sta
 if test -f ${tempdir}/fetch.stamp; then
     rpmdistro-gitoverlay build --touch-if-changed ${tempdir}/build.stamp --logdir=${origdir}/build-logs
 fi
+)
 
 (cd ${buildscriptsdir}/centos-ci/containers && sudo make)
 
@@ -44,8 +47,8 @@ if ! test -d ostree/repo/objects; then
 fi
 
 treefile=fedora-desktopbase-continuous.json
-sed -i -e 's,^baseurl=.*,baseurl=file:///srv/compose/build,' ${buildscriptsdir}/fedora-desktop-continuous.repo
-sudo docker run --privileged -v $(cd ${buildscriptsdir} && pwd):/srv/src -v ${tempdir}:/srv/tmp -v $(pwd):/srv/compose rpm-ostree compose tree --touch-if-changed=/srv/tmp/treecompose.stamp --repo=/srv/compose/ostree/repo /srv/src/${treefile}
+sed -i -e "s,^baseurl=.*,baseurl=file:///srv/compose/rdgo/build," ${buildscriptsdir}/fedora-desktop-continuous.repo
+sudo docker run --privileged -v ${buildscriptsdir}:/srv/src -v ${tempdir}:/srv/tmp -v $(pwd):/srv/compose rpm-ostree compose tree --touch-if-changed=/srv/tmp/treecompose.stamp --repo=/srv/compose/ostree/repo /srv/src/${treefile}
 if test -f ${tempdir}/treecompose.stamp; then
     sudo chown -R -h $USER:$USER ostree/repo
     ostree --repo=ostree/repo summary -u

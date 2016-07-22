@@ -37,7 +37,9 @@ fi
 #$basedir/do-release-tags --repo=ostree/repo --releases=${buildscriptsdir}/releases.yml
 
 # Work around https://lists.centos.org/pipermail/ci-users/2016-July/000302.html
-sed -i -e 's,https://ci.centos.org/artifacts/,http://artifacts.ci.centos.org/,g' ${buildscriptsdir}/fedora-desktop-continuous.repo
+for f in ${buildscriptsdir}/*.repo; do
+    sed -i -e 's,https://ci.centos.org/artifacts/,http://artifacts.ci.centos.org/,g' ${f}
+done
 sudo rpm-ostree compose tree --touch-if-changed=${tempdir}/treecompose.stamp --repo=ostree/repo ${buildscriptsdir}/${treefile}
 if test -f ${tempdir}/treecompose.stamp; then
     sudo chown -R -h $USER:$USER ostree/repo

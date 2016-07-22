@@ -23,9 +23,6 @@ cache:
   buildserial: 0
 
 components:
-  - src: github:cgwalters/yum-stub
-    spec: internal
-
   - src: github:projectatomic/bubblewrap
     spec: internal
     
@@ -45,6 +42,7 @@ components:
     distgit:
       name: libsolv
       branch: master
+
   - src: github:projectatomic/rpm-ostree
     distgit:
       branch: master

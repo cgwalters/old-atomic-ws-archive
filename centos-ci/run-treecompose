@@ -1,0 +1,56 @@
+#!/bin/bash
+set -xeuo pipefail
+basedir=$(cd $(dirname $0) && pwd)
+origdir=$(pwd)
+build=fedora-workstation
+buildscriptsdir=$(cd workstation-ostree-config && pwd)
+ref=fedora/24/x86_64/desktop/continuous
+tempdir=$(mktemp -t -d "stamp.XXXXXX")
+touch ${tempdir}/.testtmp
+function cleanup () {
+    if test -n "${TEST_SKIP_CLEANUP:-}"; then
+	echo "Skipping cleanup of ${tempdir}"
+    else if test -f ${tempdir}/.testtmp; then
+	rm "${tempdir}" -rf
+    fi
+    fi
+}
+trap cleanup EXIT
+
+. ~/rsync-password.sh 
+
+mkdir -p ${build}
+cd ${build}
+for v in ostree; do
+    rsync --delete --stats -a sig-atomic@artifacts.ci.centos.org::sig-atomic/${build}/${v}/ ${v}/
+done
+
+# Ensure we're operating on a clean base
+(cd ${buildscriptsdir} && git clean -dfx && git reset --hard HEAD)
+
+if ! test -d ostree/repo/objects; then
+    mkdir -p ostree/repo
+    ostree --repo=ostree/repo init --mode=archive-z2
+fi
+
+## Update release tags
+#$basedir/do-release-tags --repo=ostree/repo --releases=${buildscriptsdir}/releases.yml
+
+# Work around https://lists.centos.org/pipermail/ci-users/2016-July/000302.html
+sed -i -e 's,https://ci.centos.org/artifacts/,http://artifacts.ci.centos.org/,g' ${buildscriptsdir}/fedora-desktop-continuous.repo
+sudo rpm-ostree compose tree --touch-if-changed=${tempdir}/treecompose.stamp --repo=ostree/repo ${buildscriptsdir}/${treefile}
+if test -f ${tempdir}/treecompose.stamp; then
+    sudo chown -R -h $USER:$USER ostree/repo
+    ostree --repo=ostree/repo summary -u
+    rpm-ostree db --repo=ostree/repo diff ${ref}{^,}
+    ostree --repo=ostree/repo static-delta generate ${ref}
+    ostree --repo=ostree/repo prune --keep-younger-than='30 days ago' --refs-only
+fi
+
+# Always regenerate this right now since otherwise we have to track
+# potential changes from anything above.
+ostree --repo=ostree/repo summary -u
+
+for v in ostree; do
+    rsync --delete --stats -a ${v}/ sig-atomic@artifacts.ci.centos.org::sig-atomic/${build}/${v}/
+done

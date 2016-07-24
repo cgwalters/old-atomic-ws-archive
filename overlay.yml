@@ -32,10 +32,6 @@ components:
   # In contrast I want to land a lot of features in librepo
   - src: github:Tojaj/librepo
 
-  - src: github:flatpak/flatpak
-    distgit:
-      branch: master
-
   - src: github:ostreedev/ostree
     distgit:
       branch: master

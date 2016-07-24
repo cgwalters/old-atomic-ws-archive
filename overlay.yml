@@ -23,6 +23,9 @@ cache:
   buildserial: 0
 
 components:
+  - src: github:cgwalters/lorax
+    branch: i-have-a-size-10-os
+
   - src: github:projectatomic/bubblewrap
     spec: internal
     

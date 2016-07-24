@@ -25,6 +25,7 @@ cache:
 components:
   - src: github:cgwalters/lorax
     branch: i-have-a-size-10-os
+    override-version: 24.99999
 
   - src: github:projectatomic/bubblewrap
     spec: internal

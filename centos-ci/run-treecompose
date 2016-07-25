@@ -40,7 +40,8 @@ fi
 for f in ${buildscriptsdir}/*.repo; do
     sed -i -e 's,https://ci.centos.org/artifacts/,http://artifacts.ci.centos.org/,g' ${f}
 done
-sudo rpm-ostree compose tree --touch-if-changed=${tempdir}/treecompose.stamp --repo=ostree/repo ${buildscriptsdir}/fedora-desktopbase-continuous.json
+(cd ${buildscriptsdir}/centos-ci/containers && sudo make)
+sudo docker run --privileged -v ${buildscriptsdir}:/srv/src -v ${tempdir}:/srv/tmp -v $(pwd):/srv/compose rpm-ostree compose tree --touch-if-changed=/srv/tmp/treecompose.stamp --repo=/srv/compose/ostree/repo /srv/src/fedora-desktopbase-continuous.json
 if test -f ${tempdir}/treecompose.stamp; then
     sudo chown -R -h $USER:$USER ostree/repo
     ostree --repo=ostree/repo summary -u

@@ -17,6 +17,6 @@
           url: "https://pagure.io/forks/walters/workstation-ostree-config.git"
           basedir: workstation-ostree-config
           branches:
-            - f24-continuous-installer
+            - f24-continuous
 
       

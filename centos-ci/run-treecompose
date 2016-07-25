@@ -19,28 +19,21 @@ function cleanup () {
 trap cleanup EXIT
 
 . ~/rsync-password.sh 
-
-mkdir -p ${build}
-cd ${build}
-rsync --delete --stats -Hrlpt sig-atomic@artifacts.ci.centos.org::sig-atomic/${build}/ostree/ ostree/
-
 # Ensure we're operating on a clean base
 (cd ${buildscriptsdir} && git clean -dfx && git reset --hard HEAD)
 
-if ! test -d ostree/repo/objects; then
-    mkdir -p ostree/repo
-    ostree --repo=ostree/repo init --mode=archive-z2
-else
-    sudo chown -R -h $USER:$USER ostree
-fi
+mkdir -p ${build}
+sudo mkdir -p ${cachedir}
+sudo chown -R -h $USER:$USER ${cachedir}
+mkdir -p ${cachedir}/ostree
+rsync --delete --stats -Hrlpt sig-atomic@artifacts.ci.centos.org::sig-atomic/${build}/ostree/ ${cachedir}/ostree/
+repo=${cachedir}/ostree/repo
+
 cachebuildrepo=${cachedir}/build-repo
 if ! test -d ${cachebuildrepo}/objects; then
     ostree --repo=${cachebuildrepo} init --mode=bare-user
-else
-    # Cleanup leftover state
-    sudo chown -R -h $USER:$USER ${cachebuildrepo}
-    ostree --repo=${cachebuildrepo} pull-local ostree/repo ${ref}
 fi
+ostree --repo=${cachebuildrepo} pull-local ${repo} ${ref}
 
 ## Update release tags
 #$basedir/do-release-tags --repo=ostree/repo --releases=${buildscriptsdir}/releases.yml
@@ -54,17 +47,15 @@ sudo docker run --privileged -v ${cachedir}:/srv/cache -v ${buildscriptsdir}:/sr
      rpm-ostree compose tree --touch-if-changed=/srv/tmp/treecompose.stamp --repo=/srv/cache/build-repo /srv/src/fedora-desktopbase-continuous.json
 if test -f ${tempdir}/treecompose.stamp; then
     sudo chown -R -h $USER:$USER ${cachebuildrepo}
-    ostree --repo=ostree/repo pull-local ${cachebuildrepo} ${ref}
-    ostree --repo=ostree/repo summary -u
-    rpm-ostree db --repo=ostree/repo diff ${ref}{^,}
-    ostree --repo=ostree/repo static-delta generate ${ref}
-    ostree --repo=ostree/repo prune --keep-younger-than='30 days ago' --refs-only
+    ostree --repo=${repo} pull-local ${cachebuildrepo} ${ref}
+    ostree --repo=${repo} summary -u
+    rpm-ostree db --repo=${repo} diff ${ref}{^,}
+    ostree --repo=${repo} static-delta generate ${ref}
+    ostree --repo=${repo} prune --keep-younger-than='30 days ago' --refs-only
 fi
 
 # Always regenerate this right now since otherwise we have to track
 # potential changes from anything above.
-ostree --repo=ostree/repo summary -u
+ostree --repo=${repo} summary -u
 
-for v in ostree; do
-    rsync --delete --stats -a ${v}/ sig-atomic@artifacts.ci.centos.org::sig-atomic/${build}/${v}/
-done
+rsync --delete --stats -a ${cachedir}/ostree/ sig-atomic@artifacts.ci.centos.org::sig-atomic/${build}/ostree/

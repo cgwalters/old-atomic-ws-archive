@@ -61,3 +61,5 @@
   with_items:
     - builder
     - prbuilder
+
+- file: path=/var/cache/treecompose state=directory

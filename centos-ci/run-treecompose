@@ -3,6 +3,7 @@ set -xeuo pipefail
 basedir=$(cd $(dirname $0) && pwd)
 origdir=$(pwd)
 build=fedora-workstation
+cachedir=/var/cache/treecompose/${build}
 buildscriptsdir=$(cd workstation-ostree-config && pwd)
 ref=fedora/24/x86_64/desktop/continuous
 tempdir=$(mktemp -t -d "stamp.XXXXXX")
@@ -21,9 +22,7 @@ trap cleanup EXIT
 
 mkdir -p ${build}
 cd ${build}
-for v in ostree; do
-    rsync --delete --stats -a sig-atomic@artifacts.ci.centos.org::sig-atomic/${build}/${v}/ ${v}/
-done
+rsync --delete --stats -Hrlpt sig-atomic@artifacts.ci.centos.org::sig-atomic/${build}/ostree/ ostree/
 
 # Ensure we're operating on a clean base
 (cd ${buildscriptsdir} && git clean -dfx && git reset --hard HEAD)
@@ -31,6 +30,16 @@ done
 if ! test -d ostree/repo/objects; then
     mkdir -p ostree/repo
     ostree --repo=ostree/repo init --mode=archive-z2
+else
+    sudo chown -R -h $USER:$USER ostree
+fi
+cachebuildrepo=${cachedir}/build-repo
+if ! test -d ${cachebuildrepo}/objects; then
+    ostree --repo=${cachebuildrepo} init --mode=bare-user
+else
+    # Cleanup leftover state
+    sudo chown -R -h $USER:$USER ${cachebuildrepo}
+    ostree --repo=${cachebuildrepo} pull-local ostree/repo ${ref}
 fi
 
 ## Update release tags
@@ -41,9 +50,11 @@ for f in ${buildscriptsdir}/*.repo; do
     sed -i -e 's,https://ci.centos.org/artifacts/,http://artifacts.ci.centos.org/,g' ${f}
 done
 (cd ${buildscriptsdir}/centos-ci/containers && sudo make)
-sudo docker run --privileged -v ${buildscriptsdir}:/srv/src -v ${tempdir}:/srv/tmp -v $(pwd):/srv/compose rpm-ostree compose tree --touch-if-changed=/srv/tmp/treecompose.stamp --repo=/srv/compose/ostree/repo /srv/src/fedora-desktopbase-continuous.json
+sudo docker run --privileged -v ${cachedir}:/srv/cache -v ${buildscriptsdir}:/srv/src -v ${tempdir}:/srv/tmp -v $(pwd):/srv/compose \
+     rpm-ostree compose tree --touch-if-changed=/srv/tmp/treecompose.stamp --repo=/srv/cache/build-repo /srv/src/fedora-desktopbase-continuous.json
 if test -f ${tempdir}/treecompose.stamp; then
-    sudo chown -R -h $USER:$USER ostree/repo
+    sudo chown -R -h $USER:$USER ${cachebuildrepo}
+    ostree --repo=ostree/repo pull-local ${cachebuildrepo} ${ref}
     ostree --repo=ostree/repo summary -u
     rpm-ostree db --repo=ostree/repo diff ${ref}{^,}
     ostree --repo=ostree/repo static-delta generate ${ref}

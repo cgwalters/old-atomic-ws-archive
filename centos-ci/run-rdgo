@@ -29,9 +29,5 @@ if ! test -d src; then
 fi    
 
 # Git fetch all the things
-rpmdistro-gitoverlay resolve --fetch-all --touch-if-changed ${tempdir}/fetch.stamp
-
-# Do an RPM build if something changed
-if test -f ${tempdir}/fetch.stamp; then
-    rpmdistro-gitoverlay build --touch-if-changed ${origdir}/build-logs/build.stamp --logdir=${origdir}/build-logs
-fi
+rpmdistro-gitoverlay resolve --fetch-all
+rpmdistro-gitoverlay build --touch-if-changed ${origdir}/build-logs/build.stamp --logdir=${origdir}/build-logs

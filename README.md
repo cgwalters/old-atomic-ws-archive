@@ -14,8 +14,19 @@ avoid bringing in dnf.
 Installing
 ----------
 
-In the near future we'll generate an installer ISO and such.  But in
-the short term, a really neat feature of OSTree is that you can
+NEW! There is an installer ISO available, and it's been tested
+to work on bare metal.  See:
+https://ci.centos.org/artifacts/sig-atomic/fedora-workstation/images/installer/
+
+Known issues:
+
+ - After installation, you will need to edit `/etc/ostree/remotes.d/fedora.conf` and
+   change `baseurl=https://ci.centos.org/artifacts/sig-atomic/fedora-workstation/ostree/repo/`.
+
+Installing *inside* an existing system
+---------------------------------------
+
+A really neat feature of OSTree is that you can
 *parallel install* inside your existing OS.  Let's try that, we
 first make sure we have the ostree packages:
 

@@ -29,6 +29,9 @@
 # Use this when COPR is down
 - command: yum -y upgrade https://s3.amazonaws.com/cdn.verbum.org/rpmdistro-gitoverlay-2016.2.13.g57a5c88-1.el7.noarch.rpm
 
+# Hotfixes
+- shell: yum -y remove rpm-ostree-toolbox; yum -y install https://fedorapeople.org/~walters/rpm-ostree-toolbox-2015.12.10.gb5b3756-1.el7.centos.x86_64.rpm
+
 - yum: name={{ item }} state=latest
   with_items:
     - rsync

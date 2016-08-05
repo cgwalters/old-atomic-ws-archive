@@ -38,6 +38,8 @@
     - mock
     - docker
     - libsolv
+    - glib2
+    - ostree
     - rpm-ostree
     - fedpkg
     - rpmdistro-gitoverlay

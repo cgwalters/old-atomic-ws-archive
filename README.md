@@ -54,19 +54,30 @@ Initialize an "os" for this, which acts as a state root.
 ostree admin os-init fedora
 ```
 
+**For EFI systems**: currently ostree uses the presence of /boot/grub2/grub.cfg to detect a BIOS system,
+but that can be present on systems booted with EFI as well. If you boot with EFI
+(/sys/firmware/efi exists), then you need to move /boot/grub2/grub.cfg aside:
+```
+mv /boot/grub2/grub.cfg /boot/grub2/grub.cfg.bak
+```
+Since this file is not used on a EFI system, this won't break the operation of your current system. While you are at it, back up your existing grub config:
+```
+cp /boot/efi/EFI/fedora/grub.cfg /boot/efi/EFI/fedora/grub.cfg.bak
+```
+
 Deploy; we use `enforcing=0` to avoid SELinux issues for now.
 ```
 ostree admin deploy --os=fedora --karg-proc-cmdline --karg=enforcing=0 fedora-ws-centosci:fedora/24/x86_64/desktop/continuous
 ```
 
-To initialize this root, you'll need to copy over your `/etc/fstab` at least:
+To initialize this root, you'll need to copy over your `/etc/fstab` and `/etc/default/grub` at least:
 ```
-cp /etc/fstab /ostree/deploy/fedora/deploy/$checksum.0/etc
+for i in /etc/fstab /etc/default/grub ; do cp $i /ostree/deploy/fedora/deploy/$checksum.0/$i; done
 ```
 If you have a separate `/home` mount point, you'll need to change
 that `fstab` copy to refer to `/var/home`.
 
-Finally, while ostree regenerated the bootloader configuration,
+**For BIOS systems**: while ostree regenerated the bootloader configuration,
 it writes config into `/boot/loader/grub.cfg`.  On a current `grubby`
 system, you'll need to copy that version over:
 

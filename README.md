@@ -70,12 +70,17 @@ Deploy; we use `enforcing=0` to avoid SELinux issues for now.
 ostree admin deploy --os=fedora --karg-proc-cmdline --karg=enforcing=0 fedora-ws-centosci:fedora/24/x86_64/desktop/continuous
 ```
 
-To initialize this root, you'll need to copy over your `/etc/fstab` and `/etc/default/grub` at least:
+To initialize this root, you'll need to copy over your `/etc/fstab` and `/etc/default/grub` at least, along with the ostree remote that we added:
 ```
-for i in /etc/fstab /etc/default/grub ; do cp $i /ostree/deploy/fedora/deploy/$checksum.0/$i; done
+for i in /etc/fstab /etc/default/grub /etc/ostree/remotes.d/fedora-ws-centosci.conf ; do cp $i /ostree/deploy/fedora/deploy/$checksum.0/$i; done
 ```
 If you have a separate `/home` mount point, you'll need to change
 that `fstab` copy to refer to `/var/home`.
+
+You'll also need to copy your user entry from `/etc/passwd`, `/etc/group`,
+and `/etc/shadow` into the new `/etc/`, and add yourself to the wheel group
+in `/etc/group`. Don't copy just copy these files literally, however, since
+the system users and groups won't be the same.
 
 **For BIOS systems**: while ostree regenerated the bootloader configuration,
 it writes config into `/boot/loader/grub.cfg`.  On a current `grubby`

@@ -30,18 +30,10 @@ components:
   - src: github:projectatomic/bubblewrap
     spec: internal
     
-  # In contrast I want to land a lot of features in librepo
-  - src: github:Tojaj/librepo
-
   - src: github:ostreedev/ostree
     distgit:
       branch: master
       patches: drop
-
-  - src: distgit
-    distgit:
-      name: libsolv
-      branch: master
 
   - src: github:projectatomic/rpm-ostree
     distgit:

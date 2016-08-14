@@ -82,7 +82,7 @@
 		"ethtool",
 		"fcoe-utils",
 		"fedora-productimg-workstation",
-		"fedora-release-workstation",
+		"wstree-release",
 		"fedora-user-agent-chrome",
 		"firewalld",
 		"firewalld-filesystem",

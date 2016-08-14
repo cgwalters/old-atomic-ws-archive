@@ -12,6 +12,10 @@ aliases:
     url: https://git.gnome.org/browse/
     cacertpath: certs/StartComClass2PrimaryIntermediateServerCA.pem
 
+  - name: pagure
+    url: https://pagure.io/
+    cacertpath: certs/DigiCertSHA2HighAssuranceServerCA.crt
+
 distgit:
   prefix: fedorapkgs
   branch: f24
@@ -23,6 +27,12 @@ cache:
   buildserial: 0
 
 components:
+  - src: distgit
+    distgit:
+      src: pagure:wstree-release
+      name: wstree-release
+      branch: master
+
   - src: github:cgwalters/lorax
     branch: i-have-a-size-10-os
     override-version: 24.99999

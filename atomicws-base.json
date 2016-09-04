@@ -1,13 +1,5 @@
 {
-    "ref": "fedora/24/x86_64/desktop/koji",
-
-    "repos": ["fedora-24", "fedora-24-updates"],
-
     "selinux": true,
-
-    "documentation": true,
-
-    "automatic_version_prefix": "24",
 
     "initramfs-args": ["--no-hostonly"],
 
@@ -17,6 +9,10 @@
     "ignore-removed-groups": ["root"],
     "check-passwd": { "type": "file", "filename": "passwd" },
     "check-groups": { "type": "file", "filename": "group" },
+
+    "postprocess-script": "post.sh",
+
+    "default_target": "graphical.target",
 
     "packages": [
 		"aajohan-comfortaa-fonts",
@@ -62,7 +58,6 @@
 		"cups-filters-libs",
 		"curl",
 		"dconf",
-		"deltarpm",
 		"device-mapper-multipath",
 		"device-mapper-multipath-libs",
 		"dmidecode",
@@ -71,9 +66,6 @@
 		"docker",
 		"dos2unix",
 		"dracut-config-generic",
-		"dracut-live",
-		"dracut-network",
-		"drpm",
 		"e2fsprogs",
 		"ebtables",
 		"efibootmgr",
@@ -82,7 +74,6 @@
 		"ethtool",
 		"fcoe-utils",
 		"fedora-productimg-workstation",
-		"wstree-release",
 		"fedora-user-agent-chrome",
 		"firewalld",
 		"firewalld-filesystem",
@@ -296,7 +287,6 @@
 		"marisa",
 		"mcelog",
 		"media-player-info",
-		"memtest86+",
 		"mesa-dri-drivers",
 		"mesa-libxatracker",
 		"microcode_ctl",
@@ -473,7 +463,5 @@
 		"yelp",
 		"zd1211-firmware",
 		"zip"
-		],
-
-    "default_target": "graphical.target"
+		]
 }

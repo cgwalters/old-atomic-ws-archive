@@ -1,0 +1,11 @@
+{
+    "include": "atomicws-base.json",
+    
+    "ref": "atomicws/fedora/x86_64/continuous",
+
+    "automatic_version_prefix": "25.2016",
+
+    "packages": ["atomicws-release"],
+
+    "repos": ["fedora-25", "atomicws-continuous"]
+}

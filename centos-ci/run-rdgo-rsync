@@ -5,7 +5,7 @@ basedir=$(cd $(dirname $0) && pwd)
 
 . ~/rsync-password.sh 
 
-build=fedora-workstation
+build=atomic-ws
 
 mkdir -p ${build}
 origdir=$(pwd)

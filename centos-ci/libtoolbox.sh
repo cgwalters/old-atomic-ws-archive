@@ -1,5 +1,5 @@
-ostree_remote=fedora-ws-centsoci
-ostree_repo=http://artifacts.ci.centos.org/sig-atomic/fedora-workstation/ostree/repo
+ostree_remote=atomicws-centsoci
+ostree_repo=http://artifacts.ci.centos.org/sig-atomic/atomic-workstation/ostree/repo
 toolbox_base_args="-c ${buildscriptsdir}/config.ini --ostreerepo ${ostree_repo}"
 
 prepare_image_build() {

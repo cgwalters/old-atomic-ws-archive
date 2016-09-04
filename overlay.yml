@@ -18,10 +18,10 @@ aliases:
 
 distgit:
   prefix: fedorapkgs
-  branch: f24
+  branch: f25
   
 root:
-  mock: fedora-24-$arch
+  mock: fedora-25-$arch
 
 cache:
   buildserial: 0
@@ -29,13 +29,13 @@ cache:
 components:
   - src: distgit
     distgit:
-      src: pagure:wstree-release
-      name: wstree-release
+      src: pagure:atomicws-release
+      name: atomicws-release
       branch: master
 
   - src: github:cgwalters/lorax
     branch: i-have-a-size-10-os
-    override-version: 24.99999
+    override-version: 25.99999
 
   - src: github:projectatomic/bubblewrap
     spec: internal

@@ -1,22 +1,22 @@
 - defaults:
-    name: fedora-ws-defaults
+    name: atomic-ws-defaults
     node: atomic-sig-ci-slave01 
     quiet-period: 0
+    description: |
+      <p>See <a href="https://pagure.io/atomic-ws">https://pagure.io/atomic-ws</a></p>
+    scm:
+      - atomic-ws-scms
     wrappers:
       - ansicolor
       - workspace-cleanup
       - timestamps
 
 - scm:
-    name: fedora-ws-scms
+    name: atomic-ws-scms
     scm:
       - git:
           url: "https://github.com/cgwalters/centos-ci-skeleton"
           basedir: cciskel
       - git:
-          url: "https://pagure.io/forks/walters/workstation-ostree-config.git"
-          basedir: workstation-ostree-config
-          branches:
-            - f24-continuous
-
-      
+          url: "https://pagure.io/atomic-ws"
+          basedir: atomic-ws

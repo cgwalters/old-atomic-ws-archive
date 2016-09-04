@@ -2,10 +2,10 @@
 set -xeuo pipefail
 basedir=$(cd $(dirname $0) && pwd)
 origdir=$(pwd)
-build=fedora-workstation
+build=atomic-ws
 cachedir=/var/cache/treecompose/${build}
-buildscriptsdir=$(cd workstation-ostree-config && pwd)
-ref=fedora/24/x86_64/desktop/continuous
+buildscriptsdir=$(cd atomic-ws && pwd)
+ref=atomicws/fedora/x86_64/continuous
 tempdir=$(mktemp -t -d "stamp.XXXXXX")
 touch ${tempdir}/.testtmp
 function cleanup () {

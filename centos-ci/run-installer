@@ -1,9 +1,9 @@
 #!/bin/bash
 set -xeuo pipefail
 basedir=$(cd $(dirname $0) && pwd)
-build=fedora-workstation
-buildscriptsdir=$(cd workstation-ostree-config && pwd)
-ref=fedora/24/x86_64/desktop/continuous
+build=atomic-ws
+buildscriptsdir=$(cd atomic-ws && pwd)
+ref=atomicws/fedora/x86_64/continuous
 
 . ${basedir}/libtoolbox.sh
 . ~/rsync-password.sh 

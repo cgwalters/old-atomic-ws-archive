@@ -3,7 +3,7 @@ set -xeuo pipefail
 
 dn=$(cd $(dirname $0) && pwd)
 origdir=$1
-buildscriptsdir=$(cd ../workstation-ostree-config && pwd)
+buildscriptsdir=$(cd ../atomic-ws && pwd)
 tempdir=$(mktemp -t -d "stamp.XXXXXX")
 touch ${tempdir}/.testtmp
 function cleanup () {

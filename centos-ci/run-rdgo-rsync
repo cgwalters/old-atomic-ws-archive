@@ -5,9 +5,13 @@ basedir=$(cd $(dirname $0) && pwd)
 
 . ~/rsync-password.sh 
 
+mkdir -p build
+cd build
 build=atomic-ws
 
-mkdir -p ${build}
+mkdir -p ${build}/rdgo
+# Ensure the data is populated initially
+rsync --stats -a ${build}/ sig-atomic@artifacts.ci.centos.org::sig-atomic/${build}/
 origdir=$(pwd)
 cd ${build}
 for v in rdgo; do

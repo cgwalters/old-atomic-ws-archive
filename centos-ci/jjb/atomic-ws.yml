@@ -18,7 +18,7 @@
 
           (echo -n "export RSYNC_PASSWORD=" && cat ~/duffy.key | cut -c '-13') > rsync-password.sh
 
-          rsync -q -Hrlptv --stats -e ssh workstation-ostree-config rsync-password.sh builder@${DUFFY_HOST}:
+          rsync -q -Hrlptv --stats -e ssh atomic-ws rsync-password.sh builder@${DUFFY_HOST}:
           build_success=true
           if ! ssh -tt builder@${DUFFY_HOST} ./atomic-ws/centos-ci/run-rdgo-rsync; then
             build_success=false

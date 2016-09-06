@@ -1,14 +1,14 @@
 ostree_remote=atomicws-centsoci
-ostree_repo=http://artifacts.ci.centos.org/sig-atomic/atomic-workstation/ostree/repo
+ostree_repo=http://artifacts.ci.centos.org/sig-atomic/atomic-ws/ostree/repo
 toolbox_base_args="-c ${buildscriptsdir}/config.ini --ostreerepo ${ostree_repo}"
 
 prepare_image_build() {
     imgtype=$1
 
     # sudo since -toolbox might have leftover files as root if interrupted
-    sudo rm ${build}/images -rf
-    mkdir -p ${build}/images/${imgtype}
-    cd ${build}
+    sudo rm build/${build}/images -rf
+    mkdir -p build/${build}/images/${imgtype}
+    cd build/${build}
 
     if ! test -d repo; then
 	ostree --repo=repo init --mode=archive-z2

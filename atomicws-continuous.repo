@@ -1,5 +1,5 @@
 [atomicws-continuous]
-baseurl=https://ci.centos.org/artifacts/sig-atomic/atomicws/rdgo/build
+baseurl=https://ci.centos.org/artifacts/sig-atomic/atomic-ws/rdgo/build
 #baseurl=file:///srv/walters/build-workstation/build/
 priority=2
 enabled=1

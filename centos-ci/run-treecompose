@@ -22,7 +22,15 @@ trap cleanup EXIT
 # Ensure we're operating on a clean base
 (cd ${buildscriptsdir} && git clean -dfx && git reset --hard HEAD)
 
-mkdir -p ${build}
+mkdir -p build
+cd build
+
+mkdir -p ${build}/ostree
+# Ensure the data is populated initially
+if ! test -d ${build}/ostree/repo; then
+    ostree --repo=${build}/ostree/repo init --mode=archive
+fi
+rsync --stats -a ${build}/ sig-atomic@artifacts.ci.centos.org::sig-atomic/${build}/
 sudo mkdir -p ${cachedir}
 sudo chown -R -h $USER:$USER ${cachedir}
 mkdir -p ${cachedir}/ostree
@@ -33,7 +41,17 @@ cachebuildrepo=${cachedir}/build-repo
 if ! test -d ${cachebuildrepo}/objects; then
     ostree --repo=${cachebuildrepo} init --mode=bare-user
 fi
-ostree --repo=${cachebuildrepo} pull-local ${repo} ${ref}
+parent=$(ostree --repo=${repo} rev-parse ${ref} 2>/dev/null || true)
+if test -n "${parent}"; then
+    ostree --repo=${cachebuildrepo} pull-local ${repo} ${ref}
+fi
+compose_args=""
+if test -f ${buildscriptsdir}/centos-ci/override-treecompose-cache; then
+    override=$(cat ${buildscriptsdir}/centos-ci/override-treecompose-cache)
+    if test ${override} = ${parent}; then
+	compose_args="--force-nocache"
+    fi
+fi
 
 ## Update release tags
 #$basedir/do-release-tags --repo=ostree/repo --releases=${buildscriptsdir}/releases.yml
@@ -44,13 +62,15 @@ for f in ${buildscriptsdir}/*.repo; do
 done
 (cd ${buildscriptsdir}/centos-ci/containers && sudo make)
 sudo docker run --privileged -v ${cachedir}:/srv/cache -v ${buildscriptsdir}:/srv/src -v ${tempdir}:/srv/tmp -v $(pwd):/srv/compose \
-     rpm-ostree compose tree --touch-if-changed=/srv/tmp/treecompose.stamp --repo=/srv/cache/build-repo /srv/src/fedora-desktopbase-continuous.json
+     rpm-ostree compose tree ${compose_args} --touch-if-changed=/srv/tmp/treecompose.stamp --repo=/srv/cache/build-repo /srv/src/atomicws-continuous-25.json
 if test -f ${tempdir}/treecompose.stamp; then
     sudo chown -R -h $USER:$USER ${cachebuildrepo}
     ostree --repo=${repo} pull-local ${cachebuildrepo} ${ref}
     ostree --repo=${repo} summary -u
-    rpm-ostree db --repo=${repo} diff ${ref}{^,}
-    ostree --repo=${repo} static-delta generate ${ref}
+    if test -n "${parent}"; then
+	rpm-ostree db --repo=${repo} diff ${ref}{^,}
+	ostree --repo=${repo} static-delta generate ${ref}
+    fi
     ostree --repo=${repo} prune --keep-younger-than='30 days ago' --refs-only
 fi
 

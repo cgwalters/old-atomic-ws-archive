@@ -9,9 +9,4 @@ echo 'Storage=persistent' >> /etc/systemd/journald.conf
 find /usr/lib/systemd/system/ -type f -exec sed -i -e '/^PrivateTmp=/d' -e '/^Protect\(Home\|System\)=/d' {} \;
 
 # Docker initialization to use overlayfs (and disable selinux for now)
-dockerconf=/etc/sysconfig/docker
-OPTIONS="$(grep -e '^OPTIONS=' ${dockerconf} | sed -e 's,^OPTIONS=,,' | sed -e 's,--selinux-enabled,,') --storage-driver=overlay2"
-sed -e 's,^OPTIONS=,OPTIONS='"${OPTIONS}"',' < ${dockerconf} > ${dockerconf}.new
-mv ${dockerconf}{.new,}
-# Not needed with overlayfs
-systemctl mask docker-storage-setup
+echo 'STORAGE_DRIVER=overlay' >> /etc/sysconfig/docker-storage-setup

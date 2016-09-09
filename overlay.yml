@@ -33,6 +33,10 @@ components:
       name: atomicws-release
       branch: master
 
+  # Until pending update lands
+  - distgit: skopeo
+  - distgit: atomic
+
   - src: github:projectatomic/bubblewrap
     spec: internal
     

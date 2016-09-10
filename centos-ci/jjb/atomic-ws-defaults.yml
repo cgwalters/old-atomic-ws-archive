@@ -10,6 +10,9 @@
       - ansicolor
       - workspace-cleanup
       - timestamps
+    logrotate:
+      numToKeep: 10
+      artifactNumToKeep: 5
 
 - scm:
     name: atomic-ws-scms

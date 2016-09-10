@@ -37,6 +37,12 @@ components:
   - distgit: skopeo
   - distgit: atomic
 
+  - src: distgit
+    distgit:
+      name: anaconda
+      src: github:cgwalters/anaconda-distgit
+      branch: f25
+
   - src: github:projectatomic/bubblewrap
     spec: internal
     

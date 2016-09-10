@@ -54,7 +54,7 @@ if test -f ${buildscriptsdir}/centos-ci/override-treecompose-cache; then
 fi
 
 ## Update release tags
-#$basedir/do-release-tags --repo=ostree/repo --releases=${buildscriptsdir}/releases.yml
+$basedir/do-release-tags --repo=ostree/repo --releases=${buildscriptsdir}/releases.yml
 
 # Work around https://lists.centos.org/pipermail/ci-users/2016-July/000302.html
 for f in ${buildscriptsdir}/*.repo; do

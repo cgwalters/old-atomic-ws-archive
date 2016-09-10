@@ -43,7 +43,7 @@ r.open(None)
 releasedata = yaml.load(open(args.releases))
 baseref = releasedata['baseref']
 changed = False
-for (name,newcommit) in releasedata.get('releases', []).iteritems():
+for (name,newcommit) in releasedata.get('releases', {}).iteritems():
     ref = baseref + name
     [_, current] = r.resolve_rev(ref, True)
     if current is None:

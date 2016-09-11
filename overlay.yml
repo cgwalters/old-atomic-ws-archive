@@ -39,6 +39,12 @@ components:
 
   - src: distgit
     distgit:
+      name: fedora-productimg-workstation
+      src: github:cgwalters/atomicws-productimg
+      branch: master
+
+  - src: distgit
+    distgit:
       name: anaconda
       src: github:cgwalters/anaconda-distgit
       branch: f25

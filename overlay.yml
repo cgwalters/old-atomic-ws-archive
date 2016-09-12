@@ -33,6 +33,12 @@ components:
       name: atomicws-release
       branch: master
 
+  - src: distgit
+    distgit:
+      src: pagure:atomicws-logos
+      name: atomicws-logos
+      branch: master
+
   # Until pending update lands
   - distgit: skopeo
   - distgit: atomic

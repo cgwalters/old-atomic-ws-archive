@@ -46,6 +46,7 @@ changed = False
 for (name,newcommit) in releasedata.get('releases', {}).iteritems():
     ref = baseref + name
     [_, current] = r.resolve_rev(ref, True)
+    newparent = None
     if current is None:
         print("Ref {} does not currently exist".format(ref))
     else:
@@ -57,7 +58,6 @@ for (name,newcommit) in releasedata.get('releases', {}).iteritems():
             if args.ignore_no_previous_promotion:
                 print("warning: " + msg)
                 currentpromoted = '(missing)'
-                newparent = None
             else:
                 fatal(msg)
         else:

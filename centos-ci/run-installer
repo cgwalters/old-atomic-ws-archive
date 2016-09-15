@@ -1,12 +1,8 @@
 #!/bin/bash
 set -xeuo pipefail
 basedir=$(cd $(dirname $0) && pwd)
-build=atomic-ws
-buildscriptsdir=$(cd atomic-ws && pwd)
-ref=atomicws/fedora/x86_64/continuous
-
+. ${basedir}/libtask.sh
 . ${basedir}/libtoolbox.sh
-. ~/rsync-password.sh 
 
 prepare_image_build installer
 sudo rpm-ostree-toolbox installer ${toolbox_base_args} -o ${version} --overwrite

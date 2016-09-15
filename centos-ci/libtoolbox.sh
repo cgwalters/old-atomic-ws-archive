@@ -8,6 +8,8 @@ prepare_image_build() {
     # sudo since -toolbox might have leftover files as root if interrupted
     sudo rm build/${build}/images -rf
     mkdir -p build/${build}/images/${imgtype}
+    # Ensure initial directory population
+    rsync --stats -Hrlpt build/${build}/images/ sig-atomic@artifacts.ci.centos.org::sig-atomic/${build}/images/
     cd build/${build}
 
     if ! test -d repo; then
@@ -21,12 +23,16 @@ prepare_image_build() {
     rev=$(ostree --repo=repo rev-parse ${ref})
     version=$(ostree --repo=repo show --print-metadata-key=version ${ref} | sed -e "s,',,g")
 
-    # Ensure we're operating on a clean base
-    (cd ${buildscriptsdir} && git clean -dfx && git reset --hard HEAD)
-    # Work around https://lists.centos.org/pipermail/ci-users/2016-July/000302.html
-    for file in config.ini *.repo; do
-	sed -i -e 's,https://ci.centos.org/artifacts/,http://artifacts.ci.centos.org/,g' ${buildscriptsdir}/${file}
-    done
+    if test ${OSTREE_BRANCH} = "continuous"; then
+	imgloc=sig-atomic/${build}/images/${imgtype}
+    else
+	imgloc=sig-atomic/${build}/images-${OSTREE_BRANCH}/${imgtype}
+    fi
+
+    if curl -L --head -f http://artifacts.ci.centos.org/${imgloc}/${version}/; then
+	echo "Image ${imgtype} at version ${version} already exists"
+	exit 0
+    fi
 
     cd images/${imgtype}
 }
@@ -36,6 +42,6 @@ finish_image_build() {
     sudo chown -R -h $USER:$USER ${version}
     ln -s ${version} latest
     cd ..
-    rsync --delete --delete-after --stats -Hrlpt ${imgtype}/ sig-atomic@artifacts.ci.centos.org::sig-atomic/${build}/images/${imgtype}/
+    rsync --delete --delete-after --stats -Hrlpt ${imgtype}/ sig-atomic@artifacts.ci.centos.org::${imgloc}/
 }
     

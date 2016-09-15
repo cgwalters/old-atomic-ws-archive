@@ -1,29 +1,10 @@
 #!/bin/bash
 set -xeuo pipefail
 basedir=$(cd $(dirname $0) && pwd)
-origdir=$(pwd)
-build=atomic-ws
+. ${basedir}/libtask.sh
+. ${basedir}/libtoolbox.sh
+
 cachedir=/var/cache/treecompose/${build}
-buildscriptsdir=$(cd atomic-ws && pwd)
-ref=atomicws/fedora/x86_64/continuous
-tempdir=$(mktemp -t -d "stamp.XXXXXX")
-touch ${tempdir}/.testtmp
-function cleanup () {
-    if test -n "${TEST_SKIP_CLEANUP:-}"; then
-	echo "Skipping cleanup of ${tempdir}"
-    else if test -f ${tempdir}/.testtmp; then
-	rm "${tempdir}" -rf
-    fi
-    fi
-}
-trap cleanup EXIT
-
-. ~/rsync-password.sh 
-# Ensure we're operating on a clean base
-(cd ${buildscriptsdir} && git clean -dfx && git reset --hard HEAD)
-
-mkdir -p build
-cd build
 
 mkdir -p ${build}/ostree
 # Ensure the data is populated initially
@@ -31,6 +12,7 @@ if ! test -d ${build}/ostree/repo; then
     ostree --repo=${build}/ostree/repo init --mode=archive
 fi
 rsync --stats -a ${build}/ sig-atomic@artifacts.ci.centos.org::sig-atomic/${build}/
+
 sudo mkdir -p ${cachedir}
 sudo chown -R -h $USER:$USER ${cachedir}
 mkdir -p ${cachedir}/ostree
@@ -61,9 +43,9 @@ for f in ${buildscriptsdir}/*.repo; do
     sed -i -e 's,https://ci.centos.org/artifacts/,http://artifacts.ci.centos.org/,g' ${f}
 done
 (cd ${buildscriptsdir}/centos-ci/containers && sudo make)
-sudo docker run --privileged -v ${cachedir}:/srv/cache -v ${buildscriptsdir}:/srv/src -v ${tempdir}:/srv/tmp -v $(pwd):/srv/compose \
+sudo docker run --privileged -v ${cachedir}:/srv/cache -v ${buildscriptsdir}:/srv/src -v ${WORKSPACE}:/srv/tmp -v $(pwd):/srv/compose \
      rpm-ostree compose tree ${compose_args} --touch-if-changed=/srv/tmp/treecompose.stamp --repo=/srv/cache/build-repo /srv/src/atomicws-continuous-25.json
-if test -f ${tempdir}/treecompose.stamp; then
+if test -f ${WORKSPACE}/treecompose.stamp; then
     sudo chown -R -h $USER:$USER ${cachebuildrepo}
     ostree --repo=${repo} pull-local ${cachebuildrepo} ${ref}
     ostree --repo=${repo} summary -u

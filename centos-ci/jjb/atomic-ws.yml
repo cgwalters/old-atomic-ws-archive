@@ -1,3 +1,52 @@
+- builder:
+    name: atomic-duffy-builder
+    builders:
+      - macro-cciskel-duffy-prepared-allocate:
+          jobclass: builder
+          duffytimeoutsecs: 3600
+          playbook: atomic-ws/centos-ci/setup/setup-system.yml
+      - shell: |
+          #!/bin/bash
+          set -xeuo pipefail
+
+          (echo -n "export RSYNC_PASSWORD=" && cat ~/duffy.key | cut -c '-13') > rsync-password.sh
+          cat >>task.env <<EOF
+          export JENKINS_JOB_NAME="${{JOB_NAME}}"
+          export JENKINS_BUILD_TAG="${{BUILD_TAG}}"
+          export OSTREE_BRANCH="${{OSTREE_BRANCH:-}}"
+          EOF
+          cat task.env
+
+          rsync -Hrlptv --stats -e ssh task.env atomic-ws rsync-password.sh builder@${{DUFFY_HOST}}:
+          build_success=true
+          if ! ssh -tt builder@${{DUFFY_HOST}} '. task.env && ./atomic-ws/centos-ci/{task}'; then
+            build_success=false
+          fi
+          rsync -Hrlptv --stats -e ssh builder@${{DUFFY_HOST}}:build-logs $WORKSPACE/build-logs || true
+          # Exit with code from the build
+          if test "${{build_success}}" = "false"; then
+            echo 'Build failed, see logs above'; exit 1
+          fi
+
+- publisher:
+    name: atomic-duffy-publisher
+    publishers:
+      - archive:
+          artifacts: 'build-logs/**'
+          allow-empty: 'true'
+      - macro-cciskel-duffy-deallocate
+
+- publisher:
+    name: atomic-trigger-on-change
+    publishers:
+      - conditional-publisher:
+          - condition-kind: file-exists
+            condition-filename: build-logs/changed.stamp
+            condition-basedir: workspace
+            action:
+              - trigger:
+                  project: "{project}"
+
 - job:
     name: atomic-ws-rdgo
     node: atomic-sig-ci-slave01 
@@ -8,63 +57,55 @@
     defaults: atomic-ws-defaults
 
     builders:
-      - macro-cciskel-duffy-prepared-allocate:
-          jobclass: builder
-          duffytimeoutsecs: 3600
-          playbook: atomic-ws/centos-ci/setup/setup-system.yml
-      - shell: |
-          #!/bin/bash
-          set -xeuo pipefail
-
-          (echo -n "export RSYNC_PASSWORD=" && cat ~/duffy.key | cut -c '-13') > rsync-password.sh
-
-          rsync -q -Hrlptv --stats -e ssh atomic-ws rsync-password.sh builder@${DUFFY_HOST}:
-          build_success=true
-          if ! ssh -tt builder@${DUFFY_HOST} ./atomic-ws/centos-ci/run-rdgo-rsync; then
-            build_success=false
-          fi
-          rsync -q -Hrlptv --stats -e ssh builder@${DUFFY_HOST}:build-logs $WORKSPACE/build-logs || true
-          # Exit with code from the build
-          if test "${build_success}" = "false"; then
-            echo 'Build failed, see logs above'; exit 1
-          fi
+      - atomic-duffy-builder:
+          task: run-rdgo-rsync
             
     publishers:
-      - archive:
-          artifacts: 'build-logs/**'
-          allow-empty: 'true'
-      - macro-cciskel-duffy-deallocate
+      - atomic-trigger-on-change:
+          project: 'atomic-ws-treecompose'
+      - atomic-duffy-publisher
 
-- job-template:
-    name: 'atomic-ws-{task}'
-    node: atomic-sig-ci-slave01 
+- job:
+    name: 'atomic-ws-treecompose'
+    defaults: atomic-ws-defaults
     triggers:
       - github
-      - timed: "H H/3 * * *"
-
-    defaults: atomic-ws-defaults
+      - timed: "H * * * *"
 
     builders:
-      - macro-cciskel-duffy-prepared-allocate:
-          jobclass: builder
-          duffytimeoutsecs: 3600
-          playbook: atomic-ws/centos-ci/setup/setup-system.yml
-      - shell: |
-          #!/bin/bash
-          set -xeuo pipefail
-          (echo -n "export RSYNC_PASSWORD=" && cat ~/duffy.key | cut -c '-13') > rsync-password.sh
-          rsync -Hrlptv --stats -e ssh atomic-ws rsync-password.sh builder@${{DUFFY_HOST}}:
-          ssh -tt builder@${{DUFFY_HOST}} ./atomic-ws/centos-ci/run-{task}
+      - atomic-duffy-builder:
+          task: run-treecompose
             
     publishers:
-      - macro-cciskel-duffy-deallocate
+      - atomic-trigger-on-change:
+          project: 'atomic-ws-installer'
+      - atomic-duffy-publisher
+
+- job-template:
+    name: 'atomic-ws-{imagetask}-{branch}'
+    defaults: atomic-ws-defaults
+    triggers:
+      - github
+      - timed: "H H/4 * * *"
+
+    builders:
+      - inject:
+          properties-content: OSTREE_BRANCH={branch}
+      - atomic-duffy-builder:
+          task: run-{imagetask}
+            
+    publishers:
+      - atomic-duffy-publisher
 
 # create the jobs using the job templates
 - project:
     name: atomic-ws
-    task:
-      - treecompose
+    imagetask:
       - installer
+    branch:
+      - continuous
+      - alpha
     jobs:
       - atomic-ws-rdgo
-      - 'atomic-ws-{task}'
+      - atomic-ws-treecompose
+      - 'atomic-ws-{imagetask}-{branch}'

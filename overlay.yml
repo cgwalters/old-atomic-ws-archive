@@ -55,6 +55,11 @@ components:
       src: github:cgwalters/anaconda-distgit
       branch: f25
 
+  - src: distgit
+    distgit:
+      name: gnutls
+      branch: f25
+
   - src: github:projectatomic/bubblewrap
     spec: internal
     

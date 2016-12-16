@@ -1,5 +1,3 @@
-FROM fedora:24
-RUN yum -y --enablerepo=updates-testing install https://kojipkgs.fedoraproject.org//packages/ostree/2016.9/1.fc24/x86_64/ostree-2016.9-1.fc24.x86_64.rpm \
-    https://kojipkgs.fedoraproject.org//packages/rpm-ostree/2016.7/4.fc24/x86_64/rpm-ostree-2016.7-4.fc24.x86_64.rpm \
-    rpm-ostree && yum clean all
+FROM fedora:25
+RUN yum -y install ostree rpm-ostree && yum clean all
 ENTRYPOINT ["rpm-ostree"]

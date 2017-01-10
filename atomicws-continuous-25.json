@@ -3,7 +3,7 @@
     
     "ref": "atomicws/fedora/x86_64/continuous",
 
-    "automatic_version_prefix": "25.2016",
+    "automatic_version_prefix": "25.2017",
     "mutate-os-release": "25",
 
     "packages": ["atomicws-release"],

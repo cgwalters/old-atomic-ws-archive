@@ -13,17 +13,6 @@
       enabled_metadata=1
 
 - copy:
-    dest: /etc/yum.repos.d/centos7-atomic.repo
-    content: |
-      [centos7-atomic]
-      name=CentOS7 Atomic
-      baseurl=http://buildlogs.centos.org/centos/7/atomic/x86_64/Packages/
-      gpgcheck=1
-      gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
-      enabled=1
-      enabled_metadata=1
-
-- copy:
     dest: /etc/yum.repos.d/atomic7-testing.repo
     content: |
       [atomic7-testing]
@@ -35,23 +24,33 @@
 # Ensure we see fresh data
 - command: yum clean expire-cache      
 
-# Use this when COPR is down
-- command: yum -y upgrade https://s3.amazonaws.com/cdn.verbum.org/rpmdistro-gitoverlay-2016.2.13.g57a5c88-1.el7.noarch.rpm
+- command: yum -y localinstall {{ item }}
+  with_items:
+    - https://kojipkgs.fedoraproject.org//packages/python-distro/1.0.1/2.el7/noarch/python2-distro-1.0.1-2.el7.noarch.rpm
 
-- yum: name={{ item }} state=latest
+# We need epel testing for the newer fedpkg to parse the new sources
+# from https://fedoraproject.org/wiki/ReleaseEngineering/FlagDay2016
+- yum: name={{ item }} state=latest enablerepo=epel-testing
   with_items:
     - rsync
     - mock
-    - docker
     - libsolv
     - glib2
     - ostree
     - rpm-ostree
     - rpm-ostree-toolbox
     - fedpkg
+    - PyYAML
     - rpmdistro-gitoverlay
+    - libgsystem
+    - genisoimage
+    - ansible
+    - virt-install
 
-- service: name=docker state=started    
+- service: name={{ item }} state=started    
+  with_items:
+    - docker
+    - libvirtd
 
 # nspawn is better, also https://lists.fedoraproject.org/pipermail/buildsys/2015-July/004833.html
 # Also https://bugzilla.redhat.com/show_bug.cgi?id=1328212

@@ -46,7 +46,7 @@ url=https://ci.centos.org/artifacts/sig-atomic/atomic-ws/ostree/repo/
 gpg-verify=false
 ```
 
-Branch: `atomicws/fedora/x86_64/continuous``
+Branch: `atomicws/fedora/x86_64/continuous`
 
 Installing *inside* an existing system
 ---------------------------------------

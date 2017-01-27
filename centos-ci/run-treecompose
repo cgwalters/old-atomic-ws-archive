@@ -19,6 +19,13 @@ mkdir -p ${cachedir}/ostree
 rsync --delete --stats -Hrlpt sig-atomic@artifacts.ci.centos.org::sig-atomic/${build}/ostree/ ${cachedir}/ostree/
 repo=${cachedir}/ostree/repo
 
+# Regenerate to ensure this up to date
+ostree --repo=${repo} summary -u
+echo "----"
+ostree --repo=${repo} log ${ref} | head -100
+echo "----"
+
+
 cachebuildrepo=${cachedir}/build-repo
 if ! test -d ${cachebuildrepo}/objects; then
     ostree --repo=${cachebuildrepo} init --mode=bare-user

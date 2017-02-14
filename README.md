@@ -26,6 +26,12 @@ This project is actively maintained and is ready for use
 by sophisticated and interested users, but not ready
 for widespread promotion.
 
+Related projects
+-------------------
+
+Here's [a blog entry](http://dustymabe.com/2017/02/12/fedora-btrfssnapper-the-fedora-25-edition/)
+on using dnf+snapper(btrfs) for host updates.  This is an implementation of [client side snapshots](https://ostree.readthedocs.io/en/latest/manual/related-projects/).
+
 Installing
 ----------
 

@@ -26,23 +26,18 @@ This project is actively maintained and is ready for use
 by sophisticated and interested users, but not ready
 for widespread promotion.
 
-Related projects
--------------------
-
-Here's [a blog entry](http://dustymabe.com/2017/02/12/fedora-btrfssnapper-the-fedora-25-edition/)
-on using dnf+snapper(btrfs) for host updates.  This is an implementation of [client side snapshots](https://ostree.readthedocs.io/en/latest/manual/related-projects/).
-
 Installing
 ----------
 
-There is [an installer ISO](https://ci.centos.org/artifacts/sig-atomic/atomic-ws/images/installer/)
-available, and it's been tested to work on bare metal.
+There is
+[an installer ISO](https://ci.centos.org/artifacts/sig-atomic/atomic-ws/images/installer/) available,
+and it's been tested to work on bare metal. If you install inside a VM, see
+[this known bug regarding libvirt + networking](https://bugzilla.redhat.com/show_bug.cgi?id=1146232).
 
-Known issues:
+Known other issues:
 
  - [flatpak system repo](https://github.com/flatpak/flatpak/issues/113#issuecomment-247022006)
  - [Anaconda autopartitoning](https://github.com/rhinstaller/anaconda/issues/800) - be sure to use `/var/home` instead of `/home`
- - [Installing in libvirt + networking](https://bugzilla.redhat.com/show_bug.cgi?id=1146232)
  
 OSTree remote:
 
@@ -54,28 +49,17 @@ gpg-verify=false
 
 Branch: `atomicws/fedora/x86_64/continuous`
 
-Installing *inside* an existing system
----------------------------------------
+Using the system
+--------------------
 
-A really neat feature of OSTree is that you can
-*parallel install* [inside your existing OS](docs/install-inside-existing.md).
+First, try out `rpm-ostree install` to layer additional packages.  For example,
+`rpm-ostree install powerline`.
 
-Using
------
+Next, try [oc cluster up](https://github.com/openshift/origin/blob/master/docs/cluster_up_down.md) to create a local OpenShift v3 cluster.
 
-To manipulate the host, try `rpm-ostree upgrade` and `rpm-ostree
-install <package>`.
-
-You will also likely want to try out using `docker` in a "pet
-container" model, where you use yum/dnf inside the container for
-development building and the like.  For example, create a CentOS
-container with a bind mount on your `/srv` directory where you
-store data (separate from your home directory).
-
-`docker run -ti --privileged --name c7sh -v /var/srv:/srv centos`
-
-From there, you can do things like `yum-builddep foo` or
-and in general run development tools.
+Another good way to work is to create "pet" Docker containers, and use `dnf/yum`
+inside these.  You can use e.g. `-v /srv:/srv` so these containers can share
+content with your host (such as git repositories).
 
 Future work
 -----------
@@ -83,3 +67,16 @@ Future work
  - GNOME Software support for both rpm-ostree/flatpak and possibly docker
  - ostree live updates for package layering
  - automated tests that run on this content
+ 
+Related projects
+-------------------
+
+Here's
+[a blog entry](http://dustymabe.com/2017/02/12/fedora-btrfssnapper-the-fedora-25-edition/) on
+using dnf+snapper(btrfs) for host updates. This is an implementation
+of
+[client side snapshots](https://ostree.readthedocs.io/en/latest/manual/related-projects/).
+What makes rpm-ostree better here is that the system is composed (and ideally
+tested) server side.
+
+

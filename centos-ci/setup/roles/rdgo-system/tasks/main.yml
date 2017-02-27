@@ -30,7 +30,7 @@
 
 # We need epel testing for the newer fedpkg to parse the new sources
 # from https://fedoraproject.org/wiki/ReleaseEngineering/FlagDay2016
-- yum: name={{ item }} state=latest enablerepo=epel-testing
+- yum: name={{ item }} state=latest disablerepo=epel-testing
   with_items:
     - rsync
     - mock

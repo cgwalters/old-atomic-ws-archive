@@ -38,36 +38,8 @@ components:
       name: atomicws-logos
       branch: master
 
-  # Until pending update lands
-  - distgit: skopeo
-  - distgit: atomic
-
   - src: distgit
     distgit:
       name: fedora-productimg-workstation
       src: pagure:atomicws-productimg
       branch: master
-
-  - src: distgit
-    distgit:
-      name: anaconda
-      src: github:cgwalters/anaconda-distgit
-      branch: f25
-
-  - src: distgit
-    distgit:
-      name: gnutls
-      branch: f25
-
-  - src: github:projectatomic/bubblewrap
-    spec: internal
-    
-  - src: github:ostreedev/ostree
-    distgit:
-      branch: master
-      patches: drop
-
-  - src: github:projectatomic/rpm-ostree
-    distgit:
-      branch: master
-      patches: drop

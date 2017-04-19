@@ -34,21 +34,12 @@ There is
 and it's been tested to work on bare metal. If you install inside a VM, see
 [this known bug regarding libvirt + networking](https://bugzilla.redhat.com/show_bug.cgi?id=1146232).
 
-Known other issues:
+Important issues:
+-----------------------
 
- - [flatpak system repo](https://github.com/flatpak/flatpak/issues/113#issuecomment-247022006)
  - [Anaconda autopartitoning](https://github.com/rhinstaller/anaconda/issues/800) - be sure to use `/var/home` instead of `/home`
+ - [flatpak system repo](https://github.com/flatpak/flatpak/issues/113#issuecomment-247022006)
  
-OSTree remote:
-
-```
-[remote "atomic-ws"]
-url=https://ci.centos.org/artifacts/sig-atomic/atomic-ws/ostree/repo/
-gpg-verify=false
-```
-
-Branch: `atomicws/fedora/x86_64/continuous`
-
 Using the system
 --------------------
 

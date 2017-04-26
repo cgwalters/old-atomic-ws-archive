@@ -29,9 +29,13 @@ for widespread promotion.
 Installing
 ----------
 
+Important!  Don't choose auto-partitioning in the below installer ISO.  You
+need to change `/home` to be `/var/home`.  A bit more information in
+this [known issue](https://github.com/rhinstaller/anaconda/issues/800).
+
 There is
 [an installer ISO](https://ci.centos.org/artifacts/sig-atomic/atomic-ws/images/installer/) available,
-and it's been tested to work on bare metal. If you install inside a VM, see
+and it's been tested to work on bare metal.  Also, If you install inside a VM, see
 [this known bug regarding libvirt + networking](https://bugzilla.redhat.com/show_bug.cgi?id=1146232).
 
 Important issues:
@@ -46,11 +50,23 @@ Using the system
 First, try out `rpm-ostree install` to layer additional packages.  For example,
 `rpm-ostree install powerline`.
 
-Next, try [oc cluster up](https://github.com/openshift/origin/blob/master/docs/cluster_up_down.md) to create a local OpenShift v3 cluster.
+Next, let's try flatpak. Before you do: There's a known flatpak issue on
+AtomicWS - run [this workaround](https://github.com/flatpak/flatpak/issues/113#issuecomment-247022006),
+which you only need to do once. After that, [try flatpak](http://flatpak.org/apps.html).
 
-Another good way to work is to create "pet" Docker containers, and use `dnf/yum`
-inside these.  You can use e.g. `-v /srv:/srv` so these containers can share
-content with your host (such as git repositories).
+If you are a developer for server applications,
+try [oc cluster up](https://github.com/openshift/origin/blob/master/docs/cluster_up_down.md) to
+create a local OpenShift v3 cluster.
+
+Finally, you'll likely want to make one or more "pet" Docker containers,
+potentially privileged, and use `dnf/yum` inside these. You can use e.g. `-v
+/srv:/srv` so these containers can share content with your host (such as git
+repositories). Note that if you want to share content between multiple Docker
+containers and the host (e.g. your desktop session), you should execute (once):
+
+```
+sudo chcon -R -h -t container_file_t /var/srv
+```
 
 Future work
 -----------

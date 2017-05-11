@@ -58,6 +58,8 @@
 		"cups-filters-libs",
 		"curl",
 		"dconf",
+    "dejavu-fonts-common",
+    "dejavu-sans-mono-fonts",
 		"device-mapper-multipath",
 		"device-mapper-multipath-libs",
 		"dmidecode",

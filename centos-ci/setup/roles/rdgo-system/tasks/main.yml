@@ -45,6 +45,7 @@
     - libgsystem
     - genisoimage
     - ansible
+    - strace
     - virt-install
 
 - service: name={{ item }} state=started    

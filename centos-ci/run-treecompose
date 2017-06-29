@@ -26,7 +26,7 @@ ostree --repo=${repo} log ${ref} | head -100
 echo "----"
 
 
-cachebuildrepo=${cachedir}/build-repo
+cachebuildrepo=$(pwd)/build-repo
 if ! test -d ${cachebuildrepo}/objects; then
     ostree --repo=${cachebuildrepo} init --mode=bare-user
 fi
@@ -54,9 +54,7 @@ sudo docker run --privileged -v ${cachedir}:/srv/cache -v ${buildscriptsdir}:/sr
      rpm-ostree compose tree ${compose_args} --touch-if-changed=/srv/tmp/treecompose.stamp --repo=/srv/cache/build-repo /srv/src/atomicws-continuous-25.json
 if test -f ${WORKSPACE}/treecompose.stamp; then
     sudo chown -R -h $USER:$USER ${cachebuildrepo}
-    if ! strace -s 2048 -f -o strace.log ostree --repo=${repo} pull-local ${cachebuildrepo} ${ref}; then
-        tail -5000 strace.log | xz | base64
-    fi
+    ostree --repo=${repo} pull-local ${cachebuildrepo} ${ref}
     ostree --repo=${repo} summary -u
     if test -n "${parent}"; then
 	rpm-ostree db --repo=${repo} diff ${ref}{^,}

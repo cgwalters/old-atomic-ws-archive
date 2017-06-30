@@ -26,7 +26,7 @@ ostree --repo=${repo} log ${ref} | head -100
 echo "----"
 
 
-cachebuildrepo=$(pwd)/build-repo
+cachebuildrepo=${cachedir}/build-repo
 if ! test -d ${cachebuildrepo}/objects; then
     ostree --repo=${cachebuildrepo} init --mode=bare-user
 fi
@@ -52,7 +52,6 @@ done
 (cd ${buildscriptsdir}/centos-ci/containers && sudo make)
 sudo docker run --privileged -v ${cachedir}:/srv/cache -v ${buildscriptsdir}:/srv/src -v ${WORKSPACE}:/srv/tmp -v $(pwd):/srv/compose \
      rpm-ostree compose tree ${compose_args} --touch-if-changed=/srv/tmp/treecompose.stamp --repo=/srv/cache/build-repo /srv/src/atomicws-continuous-25.json
-touch ${WORKSPACE}/treecompose.stamp
 if test -f ${WORKSPACE}/treecompose.stamp; then
     sudo chown -R -h $USER:$USER ${cachebuildrepo}
     ostree --repo=${repo} pull-local ${cachebuildrepo} ${ref}

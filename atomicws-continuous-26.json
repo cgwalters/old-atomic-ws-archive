@@ -8,5 +8,5 @@
 
     "packages": ["atomicws-release"],
 
-    "repos": ["fedora-26", "fedora-26-updates"]
+    "repos": ["fedora-26", "fedora-26-updates", "atomicws-continuous"]
 }

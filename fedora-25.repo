@@ -1,8 +1,8 @@
-[fedora-25]
-name=Fedora 25 - $basearch
+[fedora-26]
+name=Fedora 26 - $basearch
 failovermethod=priority
-baseurl=https://dl.fedoraproject.org/pub/fedora/linux/releases/25/Everything/x86_64/os/
+baseurl=https://dl.fedoraproject.org/pub/fedora/linux/releases/26/Everything/x86_64/os/
 enabled=1
 gpgcheck=0
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-fedora-25-$basearch
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-fedora-26-$basearch
 skip_if_unavailable=False

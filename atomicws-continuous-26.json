@@ -1,0 +1,12 @@
+{
+    "include": "atomicws-base.json",
+    
+    "ref": "atomicws/fedora/x86_64/continuous",
+
+    "automatic_version_prefix": "26.2017",
+    "mutate-os-release": "26",
+
+    "packages": ["atomicws-release"],
+
+    "repos": ["fedora-26", "fedora-26-updates"]
+}

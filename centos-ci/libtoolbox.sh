@@ -1,6 +1,6 @@
 ostree_remote=atomicws-centsoci
 ostree_repo=http://artifacts.ci.centos.org/sig-atomic/atomic-ws/ostree/repo
-toolbox_base_args="-c ${buildscriptsdir}/config.ini --ostreerepo ${ostree_repo}"
+toolbox_base_args="-c ${atomicwsdir}/config.ini --ostreerepo ${ostree_repo}"
 
 prepare_image_build() {
     imgtype=$1
@@ -12,8 +12,8 @@ prepare_image_build() {
     rsync --stats -Hrlpt build/${build}/images/ sig-atomic@artifacts.ci.centos.org::sig-atomic/${build}/images/
     cd build/${build}
 
-    if ! test -d repo; then
-	ostree --repo=repo init --mode=archive-z2
+    if ! test -d repo/objects; then
+	      ostree --repo=repo init --mode=archive
     fi
     ostree --repo=repo remote delete ${ostree_remote} || true
     ostree --repo=repo remote add --set=gpg-verify=false ${ostree_remote} ${ostree_repo}
@@ -23,11 +23,7 @@ prepare_image_build() {
     rev=$(ostree --repo=repo rev-parse ${ref})
     version=$(ostree --repo=repo show --print-metadata-key=version ${ref} | sed -e "s,',,g")
 
-    if test ${OSTREE_BRANCH} = "continuous"; then
-	imgloc=sig-atomic/${build}/images/${imgtype}
-    else
-	imgloc=sig-atomic/${build}/images-${OSTREE_BRANCH}/${imgtype}
-    fi
+	  imgloc=sig-atomic/${build}/images/${imgtype}
 
     if curl -L --head -f http://artifacts.ci.centos.org/${imgloc}/${version}/; then
 	echo "Image ${imgtype} at version ${version} already exists"
@@ -44,4 +40,3 @@ finish_image_build() {
     cd ..
     rsync --delete --delete-after --stats -Hrlpt ${imgtype}/ sig-atomic@artifacts.ci.centos.org::${imgloc}/
 }
-    

@@ -17,7 +17,7 @@
           EOF
           cat task.env
 
-          rsync -Hrlptv --stats -e ssh task.env atomic-ws rsync-password.sh builder@${{DUFFY_HOST}}:
+          rsync -Hrlptv --stats -e ssh task.env atomic-ws workstation-ostree-config rsync-password.sh builder@${{DUFFY_HOST}}:
           build_success=true
           if ! ssh -tt builder@${{DUFFY_HOST}} '. task.env && ./atomic-ws/centos-ci/{task}'; then
             build_success=false
@@ -93,7 +93,6 @@
           properties-content: OSTREE_BRANCH={branch}
       - atomic-duffy-builder:
           task: run-{imagetask}
-            
     publishers:
       - atomic-duffy-publisher
 
@@ -104,7 +103,6 @@
       - installer
     branch:
       - continuous
-      - alpha
     jobs:
       - atomic-ws-rdgo
       - atomic-ws-treecompose

@@ -21,5 +21,10 @@
           url: "https://github.com/cgwalters/centos-ci-skeleton"
           basedir: cciskel
       - git:
+          url: "https://pagure.io/workstation-ostree-config"
+          basedir: workstation-ostree-config
+          branches:
+            - f26
+      - git:
           url: "https://pagure.io/atomic-ws"
           basedir: atomic-ws

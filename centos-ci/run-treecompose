@@ -21,47 +21,55 @@ repo=${cachedir}/ostree/repo
 
 # Regenerate to ensure this up to date
 ostree --repo=${repo} summary -u
-echo "----"
-ostree --repo=${repo} log ${ref} | head -100
-echo "----"
+current_rev=$(ostree --repo=${repo} rev-parse ${ref} 2>/dev/null || true)
+if test -n "${current_rev}"; then
+    echo "----"
+    ostree --repo=${repo} log ${current_rev} | head -100
+    echo "----"
+fi
 
 
 cachebuildrepo=${cachedir}/build-repo
 if ! test -d ${cachebuildrepo}/objects; then
     ostree --repo=${cachebuildrepo} init --mode=bare-user
 fi
-parent=$(ostree --repo=${repo} rev-parse ${ref} 2>/dev/null || true)
-if test -n "${parent}"; then
+if test -n "${current_rev}"; then
     ostree --repo=${cachebuildrepo} pull-local ${repo} ${ref}
 fi
 compose_args=""
-if test -f ${buildscriptsdir}/centos-ci/override-treecompose-cache; then
-    override=$(cat ${buildscriptsdir}/centos-ci/override-treecompose-cache)
-    if test ${override} = ${parent}; then
-	compose_args="--force-nocache"
+if test -f ${atomicwsdir}/centos-ci/override-treecompose-cache; then
+    override=$(cat ${atomicwsdir}/centos-ci/override-treecompose-cache)
+    if test "${override}" = "${current_rev}" || test "${override}" = yes; then
+	      compose_args="--force-nocache"
     fi
 fi
 
-## Update release tags
-$basedir/do-release-tags --repo=${repo} --releases=${buildscriptsdir}/releases.yml
-
-# Work around https://lists.centos.org/pipermail/ci-users/2016-July/000302.html
-for f in ${buildscriptsdir}/*.repo; do
-    sed -i -e 's,https://ci.centos.org/artifacts/,http://artifacts.ci.centos.org/,g' ${f}
-done
-(cd ${buildscriptsdir}/centos-ci/containers && sudo make)
-sudo docker run --privileged -v ${cachedir}:/srv/cache -v ${buildscriptsdir}:/srv/src -v ${WORKSPACE}:/srv/tmp -v $(pwd):/srv/compose \
-     rpm-ostree compose tree ${compose_args} --touch-if-changed=/srv/tmp/treecompose.stamp --repo=/srv/cache/build-repo /srv/src/atomicws-continuous-26.json
+(cd ${atomicwsdir}/centos-ci/containers && sudo make)
+sudo docker run --privileged -v ${cachedir}:/srv/cache -v ${configdir}:/srv/src -v ${WORKSPACE}:/srv/tmp -v $(pwd):/srv/compose \
+     rpm-ostree compose tree ${compose_args} --touch-if-changed=/srv/tmp/treecompose.stamp --repo=/srv/cache/build-repo /srv/src/fedora-ostree-workstation.json
 if test -f ${WORKSPACE}/treecompose.stamp; then
     sudo chown -R -h $USER:$USER ${cachebuildrepo}
     ostree --repo=${repo} pull-local ${cachebuildrepo} ${ref}
     ostree --repo=${repo} summary -u
+    ostree --repo=${repo} fsck
+    parent=$(ostree --repo=${repo} rev-parse ${ref}^ 2>/dev/null || true)
     if test -n "${parent}"; then
-	rpm-ostree db --repo=${repo} diff ${ref}{^,}
-	ostree --repo=${repo} static-delta generate ${ref}
+	      rpm-ostree db --repo=${repo} diff ${ref}{^,}
+	      ostree --repo=${repo} static-delta generate ${ref}
     fi
     ostree --repo=${repo} prune --keep-younger-than='30 days ago' --refs-only
 fi
+
+# Ensure our stable refs are set up
+find ${repo}/refs/heads -print
+for sref in ${stable_ref_old} ${stable_ref}; do
+    (cd ${repo}/refs/heads
+     mkdir -p $(dirname $sref)
+     ln -sfr ${ref} ${sref}
+    )
+done
+# Update release tags
+$basedir/do-release-tags --repo=${repo} --releases=${atomicwsdir}/releases.yml
 
 # Always regenerate this right now since otherwise we have to track
 # potential changes from anything above.

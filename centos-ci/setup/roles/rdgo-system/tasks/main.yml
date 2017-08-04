@@ -21,6 +21,15 @@
       gpgcheck=0
       enabled=1
 
+- copy:
+    dest: /etc/yum.repos.d/cahc-rdgo.repo
+    content: |
+      [cahc-rdgo]
+      name=CAHC rdgo
+      baseurl=http://artifacts.ci.centos.org/sig-atomic/centos-continuous/rdgo/build/
+      gpgcheck=0
+      enabled=1
+
 # Ensure we see fresh data
 - command: yum clean expire-cache      
 

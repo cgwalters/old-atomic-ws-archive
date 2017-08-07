@@ -4,6 +4,9 @@ basedir=$(cd $(dirname $0) && pwd)
 . ${basedir}/libtask.sh
 . ${basedir}/libtoolbox.sh
 
+# Version: 26.20 (2017-07-07 13:46:24)
+f26_iso_rev=fed6d2ffa2c012e86189d9115094520ede42c028afe55799933ec65249cc7f95
+
 cachedir=/var/cache/treecompose/${build}
 
 mkdir -p ${build}/ostree
@@ -44,6 +47,11 @@ if test -f ${atomicwsdir}/centos-ci/override-treecompose-cache; then
     fi
 fi
 
+# Mirror original ref so that we can generate a delta for a good
+# upgrade experience
+ostree --repo=${repo} remote add --if-not-exists --set=gpg-verify=false f26ws https://kojipkgs.fedoraproject.org/compose/ostree/26
+ostree --repo=${repo} pull f26ws:${f26_iso_rev}
+
 (cd ${atomicwsdir}/centos-ci/containers && sudo make)
 sudo docker run --privileged -v ${cachedir}:/srv/cache -v ${configdir}:/srv/src -v ${WORKSPACE}:/srv/tmp -v $(pwd):/srv/compose \
      rpm-ostree compose tree ${compose_args} --touch-if-changed=/srv/tmp/treecompose.stamp --repo=/srv/cache/build-repo /srv/src/fedora-ostree-workstation.json
@@ -55,8 +63,9 @@ if test -f ${WORKSPACE}/treecompose.stamp; then
     parent=$(ostree --repo=${repo} rev-parse ${ref}^ 2>/dev/null || true)
     if test -n "${parent}"; then
 	      rpm-ostree db --repo=${repo} diff ${ref}{^,}
-	      ostree --repo=${repo} static-delta generate ${ref}
+	      ostree --repo=${repo} static-delta generate --disable-bsdiff -n ${ref}
     fi
+	  ostree --repo=${repo} static-delta generate --disable-bsdiff -n --from ${f26_iso_rev} --to ${ref}
     ostree --repo=${repo} prune --keep-younger-than='30 days ago' --refs-only
 fi
 

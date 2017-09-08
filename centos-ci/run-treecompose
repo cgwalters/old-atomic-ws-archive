@@ -59,7 +59,6 @@ if test -f ${WORKSPACE}/treecompose.stamp; then
     sudo chown -R -h $USER:$USER ${cachebuildrepo}
     ostree --repo=${repo} pull-local ${cachebuildrepo} ${ref}
     ostree --repo=${repo} summary -u
-    ostree --repo=${repo} fsck
     parent=$(ostree --repo=${repo} rev-parse ${ref}^ 2>/dev/null || true)
     if test -n "${parent}"; then
 	      rpm-ostree db --repo=${repo} diff ${ref}{^,}
